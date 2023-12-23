@@ -57,9 +57,12 @@ pretty_spilhaus_df = pretify_spilhaus_df(spilhaus_df)
 # plot
 ggplot(data=pretty_spilhaus_df, aes(x=x, y=y, fill=z)) +
   geom_raster() +
-  scale_fill_viridis_c(option = 'inferno', guide = "none") +
+  scale_fill_viridis_c(option = 'inferno', name = "SST [°C]") +
   coord_equal() +
   theme_void() +
-  theme(panel.background = element_rect(fill = 'black', color = 'black'))
+  theme(panel.background = element_rect(fill = 'black', color = 'black'),
+        legend.position = c(0.95, 0.9), legend.direction = "vertical",
+        legend.title = element_text(color = "white"),
+        legend.text = element_text(color = "white"))
 
 
