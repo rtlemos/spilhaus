@@ -11,22 +11,22 @@ To know more about the Spilhaus projection, see:
 
 
 Currently, the Spilhaus projection is missing in PROJ, making it 
-unavailable for R and Python enthusiasts: https://github.com/OSGeo/PROJ/issues/1851.
+unavailable for R and Python enthusiasts, among others: https://github.com/OSGeo/PROJ/issues/1851.
+This repo contains two scripts:
 
-The functions
+- `spilhaus.R`, which contains the main functions that you may want to use, and
+- `example.R`, which demonstrates how to use the functions to create and plot a dataset using the Spilhaus projection. 
+
+In `spilhaus.R`, the functions
 
 - `from_lonlat_to_spilhaus_xy` and 
 - `from_spilhaus_xy_to_lonlat`
 
-let you move between Mercator and Spilhaus projections.
-
-The function
+let you move between Mercator and Spilhaus projections; the function
 
 - `make_spilhaus_xy_gridpoints`
 
-lets you create a square grid of Spilhaus coordinates.
-
-Finally, the function
+lets you create a square grid of Spilhaus coordinates; and the function
 
 - `pretify_spilhaus_df`
 
