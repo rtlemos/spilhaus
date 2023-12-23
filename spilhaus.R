@@ -167,7 +167,6 @@ from_spilhaus_xy_to_lonlat <- function(spilhaus_x, spilhaus_y) {
       error=function(e) c(NA, NA)
     )
   }
-  #projected = matrix(mapply(adams_x, adams_y, FUN=projection_fun), ncol=2)
   projected = sf_project(from=adams_ws2, to=sf::st_crs(4326), pts=cbind(adams_x, adams_y), keep = TRUE, warn = FALSE)
   lon_s = projected[,1]
   lat_s = projected[,2]
