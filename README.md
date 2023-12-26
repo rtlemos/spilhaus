@@ -28,7 +28,7 @@ let you move between Mercator and Spilhaus projections; the function
 
 lets you create a square grid of Spilhaus coordinates; and the function
 
-- `pretify_spilhaus_df`
+- `prettify_spilhaus_df`
 
 cleans the Spilhaus dataframe and moves a few pixels around (bottom/top and 
 left/right) to make a contiguous ocean.
