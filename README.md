@@ -12,12 +12,12 @@ To know more about the Spilhaus projection, see:
 
 Currently, the Spilhaus projection is missing in PROJ, making it 
 unavailable for R and Python enthusiasts, among others: https://github.com/OSGeo/PROJ/issues/1851.
-This repo contains two scripts:
+This repo contains four scripts:
 
-- `spilhaus.R`, which contains the main functions that you may want to use, and
-- `example.R`, which demonstrates how to use the functions to create and plot a dataset using the Spilhaus projection. 
+- `spilhaus.R` and `spilhaus.py`, which contain the main functions that you may want to use, and
+- `example.R` and `example.py`, which demonstrate how to use the functions to create and plot a dataset using the Spilhaus projection. 
 
-In `spilhaus.R`, the functions
+In `spilhaus.*`, the functions
 
 - `from_lonlat_to_spilhaus_xy` and 
 - `from_spilhaus_xy_to_lonlat`
