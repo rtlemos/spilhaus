@@ -1,9 +1,22 @@
+from typing import Tuple
+import numpy.typing as npt
 import numpy as np
 import pandas as pd
 from pyproj import Proj, Transformer
 from numpy import sin, cos, tan, arcsin, arctan, arctan2, pi
 
-def from_lonlat_to_spilhaus_xy(longitude, latitude):
+
+def from_lonlat_to_spilhaus_xy(
+        longitude: npt.NDArray,
+        latitude: npt.NDArray
+) -> Tuple[npt.NDArray, npt.NDArray]:
+    """
+    Converts longitude and latitude (degrees N and E) into Spilhaus coordinates
+
+    :param longitude: -180 to 180
+    :param latitude: -90 to 90
+    :return: Spilhaus x (easting) and y (northing)
+    """
 
     # constants (https://github.com/OSGeo/PROJ/issues/1851)
     e = np.sqrt(0.00669438)
@@ -47,27 +60,43 @@ def from_lonlat_to_spilhaus_xy(longitude, latitude):
     spilhaus_x = -(adams_x + adams_y) / np.sqrt(2)
     spilhaus_y = (adams_x - adams_y) / np.sqrt(2)
     
-    return spilhaus_x, spilhaus_y #, adams_x, adams_y #, lon_s, lat_s
+    return spilhaus_x, spilhaus_y
     
     
-def make_spilhaus_xy_gridpoints(spilhaus_res=1000):
+def make_spilhaus_xy_gridpoints(
+        spilhaus_res: int = 1000
+) -> pd.DataFrame:
+    """
+    Creates a data frame of Spilhaus coordinates
+
+    :param spilhaus_res: grid resolution
+    :return: df with columns `x` and `y` (nrow = spilhaus_res ** 2, ncol = 2)
+    """
     
     # regular grid of points in Spilhaus map
     extreme = 11825474
     m = np.linspace(start=-extreme, stop=extreme, num=spilhaus_res)
     gr = np.array(np.meshgrid(m, m)).reshape(2, spilhaus_res ** 2).T
     spilhaus_df = pd.DataFrame({
-        'x': gr[:,0],
-        'y': gr[:,1]
+        'x': gr[:, 0],
+        'y': gr[:, 1]
     })
     return spilhaus_df
     
     
 def prettify_spilhaus_df(
-    spilhaus_df, 
-    z_lower_bound = -np.inf,
-    z_upper_bound = np.inf
-):
+    spilhaus_df: pd.DataFrame,
+    z_lower_bound: float = -np.inf,
+    z_upper_bound: float = np.inf
+) -> pd.DataFrame:
+    """
+    Prettifies a Spilhaus data frame
+
+    :param spilhaus_df: raw Spilhaus data frame
+    :param z_lower_bound: lower cutoff for valid z values
+    :param z_upper_bound: upper cutoff for valid z values
+    :return: prettier Spilhaus data frame
+    """
     
     spilhaus_df['l'] = (
         (spilhaus_df['z'] <= z_lower_bound) | 
@@ -119,6 +148,7 @@ def prettify_spilhaus_df(
         | (aug_y < -cutpoint)
         | (aug_y > cutpoint)
         | (aug_y > 1.089e7 - 0.176 * aug_x)
+        | (aug_y > 1.6e7 + 0.8333 * aug_x)
         | (aug_x < -0.984e7 - 0.565 * aug_y)
         | (aug_y < -1.378e7 + 0.46 * aug_x)
         | (aug_x > 1.274e7 + 0.172 * aug_y)
@@ -131,17 +161,33 @@ def prettify_spilhaus_df(
         | ((aug_y < -1.16e7) & (aug_x > 0.4e7))
         | ((aug_y < -1.11e7) & (aug_x > 0.45e7))
     )
-        
+
+    def prettify_axis(u: npt.NDArray) -> npt.NDArray:
+        unique_u = np.unique(u)
+        n = len(unique_u)
+        res_u = np.median(unique_u[1:n] - unique_u[0:(n - 1)])
+        return ((u - np.min(u)) / res_u).astype(int)
+
     pretty_spilhaus_df = pd.DataFrame({
-        'x': aug_x[keep],
-        'y': aug_y[keep],
+        'x': prettify_axis(aug_x[keep]),
+        'y': prettify_axis(aug_y[keep]),
         'z': aug_z[keep]
-    }).drop_duplicates(subset = ['x', 'y'])
+    }).drop_duplicates(subset=['x', 'y'])
     
     return pretty_spilhaus_df
     
 
-def from_spilhaus_xy_to_lonlat(spilhaus_x, spilhaus_y):
+def from_spilhaus_xy_to_lonlat(
+        spilhaus_x,
+        spilhaus_y
+) -> Tuple[npt.NDArray, npt.NDArray]:
+    """
+    Converts Spilhaus coordinates into longitude and latitude (degrees N and E)
+
+    :param spilhaus_x: Spilhaus easting
+    :param spilhaus_y: Spilhaus northing
+    :return: longitude (-180 to 180) and latitude (-90 to 90)
+    """
     
     # constants
     e = np.sqrt(0.00669438)
@@ -160,8 +206,6 @@ def from_spilhaus_xy_to_lonlat(spilhaus_x, spilhaus_y):
     alpha = -arcsin(cos(conformal_lat_center) * cos(azimuth_rad))
     lambda_0 = lon_center_rad + arctan2(tan(azimuth_rad), -sin(conformal_lat_center))
     beta = pi + arctan2(-sin(azimuth_rad), -tan(conformal_lat_center))
-    
-    #transformer=Transformer.from_crs(4326, {"proj":'adams_ws2'}, always_xy=True)
     
     # take spilhaus coordinates and compute transformed coords, in degrees
     itransformer = Transformer.from_crs({"proj":'adams_ws2'}, 4326, always_xy=True)
