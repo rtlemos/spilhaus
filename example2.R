@@ -98,7 +98,7 @@ pretty_sites = pretify_spilhaus_df(sites_grid)
 # step 8: plot
 ggplot() +
   geom_tile(data=pretty_spilhaus_df, aes(x=x, y=y), fill='white') +
-  geom_point(data=pretty_interface_df, aes(x=x, y=y), color=gray(0.4), size=0.1) +
+  geom_point(data=pretty_interface_df, aes(x=x, y=y), color=gray(0.4), size=0.1, pch='.') +
   geom_tile(data=pretty_sites, aes(x=x, y=y, fill=z)) +
   scale_fill_viridis_c(option = 'viridis', direction = -1, name = "# samples") +
   coord_equal() +
